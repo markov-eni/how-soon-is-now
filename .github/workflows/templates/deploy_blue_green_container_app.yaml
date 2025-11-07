@@ -1,0 +1,10 @@
+# use the github action and strategy to container app 
+name: Deploy to Container Apps blue/green deployment 
+
+on:
+  workflow_call:
+jobs:
+  deploy_blue_green:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo HELLO

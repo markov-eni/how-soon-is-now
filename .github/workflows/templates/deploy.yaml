@@ -1,0 +1,65 @@
+name: Terraform Deploy
+
+on:
+  workflow_call:
+    inputs:
+      terraform_root_path:
+        required: true
+        type: string
+      terraform_version:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      github_tf_environment_variables:
+        required: true
+        type: string
+
+jobs:
+  terraform_deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Load environment variables
+        run: |
+          for var in "${{ join(inputs.github_tf_environment_variables, ' ') }}"; do
+            echo "Loading $var"
+            echo "$var=${!var}" >> $GITHUB_ENV
+          done
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Terraform Init
+        working-directory: ${{ inputs.terraform_root_path }}
+        env:
+          TF_PLUGIN_CACHE_DIR: .terraform.d/plugin-cache
+        run: |
+          mkdir -p $TF_PLUGIN_CACHE_DIR
+          terraform init -input=false -get-plugins=false
+
+      - name: Terraform Plan
+        working-directory: ${{ inputs.terraform_root_path }}
+        run: terraform plan -out=tfplan -input=false
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: ${{ inputs.terraform_root_path }}/tfplan
+
+      - name: Terraform Apply
+        working-directory: ${{ inputs.terraform_root_path }}
+        run: terraform apply -auto-approve tfplan

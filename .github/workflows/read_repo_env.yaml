@@ -2,7 +2,7 @@ name: Debug TF Env Variables
 
 on:
   push:
-    branches: [ main ]
+    branches: [ mainn ]
 
 jobs:
   load_and_debug_env_vars:

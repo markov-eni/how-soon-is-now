@@ -2,7 +2,7 @@ name: Debug TF Env Variables
 
 on:
   push:
-    branches: [ main ]
+    branches: [ mainn ]
 
 jobs:
   load_and_debug_env_vars:
@@ -13,7 +13,7 @@ jobs:
 
       - name: Read .github_tf_env and load repo variables
         env:
-          GH_TOKEN: ${{ secrets.READ_REPO_VARS }}
+          GH_TOKEN: ${{ secrets.READ_REPO_VARS }} # github pat repo scoped with variables read 
           REPO: ${{ github.repository }}
         run: |
           echo "Reading .github_tf_env file..."

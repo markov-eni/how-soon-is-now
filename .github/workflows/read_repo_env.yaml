@@ -2,7 +2,7 @@ name: Debug TF Env Variables
 
 on:
   push:
-    branches: [ mainn ]
+    branches: [ main ]
 
 jobs:
   load_and_debug_env_vars:
@@ -40,3 +40,5 @@ jobs:
         run: |
           echo "Loaded variables:"
           cat $GITHUB_ENV
+
+      - run: echo $TF_VAR_IMAGE_NAME

@@ -7,16 +7,13 @@ on:
 jobs:
   load_and_debug_env_vars:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Read .github_tf_env and load repo variables
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.READ_REPO_VARS }}
           REPO: ${{ github.repository }}
         run: |
           echo "Reading .github_tf_env file..."

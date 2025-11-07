@@ -1,0 +1,53 @@
+name: Create Release
+
+on:
+  workflow_call:
+    inputs:
+      branch_name:
+        required: true
+        type: string
+        description: "Branch to clone"
+      path:
+        required: true
+        type: string
+        description: "Folder path or file to create the release from"
+      release_tag:
+        required: true
+        type: string
+        description: "Tag of the release"
+      release_title:
+        required: true
+        type: string
+        description: "Title of the release"
+      release_notes:
+        required: false
+        type: string
+        description: "Notes of the release"
+
+jobs:
+  create_release:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+    env:
+      ZIP_RELEASE_FILE_NAME : release_code.tar.gz
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5.0.0
+        with:
+          ref: ${{ inputs.branch_name }}
+
+      - name: Zip release code
+        run: |
+          tar -czvf $ZIP_RELEASE_FILE_NAME -C ${{ inputs.path }}
+
+      - name: Create Github Release
+        run: |
+          gh release create "${{ inputs.release_tag }}" \
+            $ZIP_RELEASE_FILE_NAME \ 
+            --title "${{ inputs.release_title }}" \
+            --notes "${{ inputs.release_notes }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+
